@@ -1,24 +1,29 @@
 #include <stdio.h> 
 #include <time.h>
 
+// 월별 일 수
 int date[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 char stack[100];
+
+// 스택 데이터 개수
 int count;
 
-
+// 스케줄 저장 배열
 int mScheduleYear[100] = {0};
 int mScheduleMonth[100] = {0};
 int mScheduleDay[100] = {0};	
 char mSchedule[100][20] = {'\0'};
+
+// 스케줄 갯수
 int mScheduleCount = 0;
 
-// 스택
+// 스택 함수
 void push(char);
 void pushStr(char*);
 char pop();
 int isEmpty();
 
-// 메뉴
+// 메뉴 함수
 void scheduler();
 void calculator();
 
@@ -60,8 +65,9 @@ int main(void) {
 	return 0;
 }
 
-// 일정관리
+// 일정관리 앱
 void scheduler() {
+	// 현재 시간 달력 띄우기
 	time_t nowTime = time(NULL);
 	struct tm *t;
 	t = localtime(&nowTime);
@@ -76,10 +82,12 @@ void scheduler() {
 	leapYear = getLeapYear(year, month);
 	printCalendar(year, leapYear, month, day);
 
+
 	while (1) {
 		int scheduleCount = mScheduleCount;
 		printf("년도를 입력하세요 : ");
 		scanf("%d", &year);
+		// 월 제대로 입력했는지 확인
 		while(1) {
 			printf("월을 입력하세요 : ");
 			scanf("%d", &month);
@@ -90,6 +98,7 @@ void scheduler() {
 			}
 		}
 	
+		//일 제대로 입력했는지 확인
 		while(1) {
 			printf("일을 입력하세요 : ");
 			scanf("%d", &day);
@@ -105,66 +114,98 @@ void scheduler() {
 			}
 		}
 		leapYear = getLeapYear(year, month);
+		// 캘린더 출력
 		printCalendar(year, leapYear, month, day);
-	
+		
+		// 일정 겹치는지 확인
 		int overwrite = 1;
 		for (int i = 0; i < scheduleCount; i++) {
+			// 겹침
 			if (mScheduleYear[i] == year && mScheduleMonth[i] == month && mScheduleDay[i] == day) {
 				char answer;
 				printf("해당 날짜에 이미 일정이 있습니다. 덮어 씌우시겠습니까? (Y or N)");
 				getchar();
 				answer = getchar();
+				// 덮어씌우기
 				if (answer == 'Y' || answer == 'y') {
 					scheduleCount = i;
 					overwrite = 1;
 				}
+				// 되돌아가기
 				else
 					overwrite = 0;
 				break;
 			}
 		}
 
+		// 일정 겹쳐서 되돌아가기
 		if (overwrite == 0)
 			continue;
 
 		printf("일정을 입력하세요 : ");
 		getchar();
+		
+		// 일정 입력
 		fgets(mSchedule[scheduleCount], sizeof(mSchedule[scheduleCount]), stdin);
+		
 		// fgets는 마지막에 \n도 저장되기에 \n을 제거.
 		int length = getLength(mSchedule[scheduleCount]);
 		mSchedule[scheduleCount][length - 1] = '\0';
+
+		// 일정 저장
 		mScheduleYear[scheduleCount] = year;
 		mScheduleMonth[scheduleCount] = month;
 		mScheduleDay[scheduleCount] = day;
 		mScheduleCount++;
+
+		// 캘린더 출력
 		printCalendar(year, leapYear, month, day);
 	}
 }
 
 
+/*
+ * 캘린더 출력
+ * @Params : year = 년도
+ *			leapYear = 윤년 횟수
+ * 			month = 월
+ *			day = 일
+ */
 void printCalendar(int year, int leapYear, int month, int day) {	
 	// 1년1월1일로부터 해당 년월일까지 총 일 수 계산
 	int allDay = year * 365 + leapYear;
 	for (int i = 0; i < month - 1; i++)
 		allDay += date[i];
 	
+	// 캘린더 출력 시 시작 요일 계산
 	int skipDay = allDay % 7;
-	int isLeap = 0;
+	
 	// 2월이면 윤년인지 확인해서 윤년이면 29일까지 출력
+	int isLeap = 0;
 	if (month == 2 && isLeapYear(year))
 		isLeap = 1;
+
+	// 캘린더 출력 (윤년의 2월이면 29일까지, 시작 요일 포함)
 	int weekCount = 0;
 	printf("일\t\t월\t\t화\t\t수\t\t목\t\t금\t\t토\n");
 	for (int i = 1; i <= date[month - 1] + isLeap + skipDay; i++, weekCount++) {
+		// 시작 요일 맞추기 위해 건너뜀
 		if (i <= skipDay)
 			printf("\t\t");
+
+		// 날짜 출력
 		else
 			printf("%d\t\t", i - skipDay);
+
+		// 토요일까지 모두 출력 후 또는 day 모두 출력 후 개행
 		if (i % 7 == 0 || i == date[month - 1] + isLeap + skipDay) {
 			printf("\n");
+			// 날짜 밑에 일정 출력
 			for (int k = i - weekCount + 1; k <= i; k++) {
 				weekCount = 0;
+				// 해당 날짜에 일정 있는지 검사
 				for (int j = 0; j < mScheduleCount; j++) {
+					// 일정 있으면 출력
 					if (mScheduleYear[j] == year && mScheduleMonth[j] == month && mScheduleDay[j] == k) {
 						printf("%s", mSchedule[j]);
 						break;
