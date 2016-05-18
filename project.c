@@ -35,7 +35,7 @@ int isLeapYear(int);
 int main(void) {
 	int menu_choice;
 
-	printf("\tMenu\n");
+	printf("\t\tMenu\n");
 	printf("1. Calculator\n");
 	printf("2. Scheduler\n");
 	printf("3. End\n");
