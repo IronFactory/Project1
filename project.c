@@ -130,6 +130,7 @@ void scheduler() {
 		printf("일정을 입력하세요 : ");
 		getchar();
 		fgets(mSchedule[scheduleCount], sizeof(mSchedule[scheduleCount]), stdin);
+		// fgets는 마지막에 \n도 저장되기에 \n을 제거.
 		int length = getLength(mSchedule[scheduleCount]);
 		mSchedule[scheduleCount][length - 1] = '\0';
 		mScheduleYear[scheduleCount] = year;
