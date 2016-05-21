@@ -37,17 +37,22 @@ int schedulerMenu();
 int getLeapYear(int, int);
 void printCalendar(int, int, int, int);
 int isLeapYear(int);
+void insertSchedule();
+
+// String 함수
+char* removeEnterInFgetsString(char*);
 
 int main(void) {
-	int menu_choice;
+	int menuChoice;
+	int subMenu;
 
 	printf("\tMenu\n");
 	printf("1. Calculator\n");
 	printf("2. Scheduler\n");
 	printf("3. End\n");
 
-	scanf("%d", &menu_choice);
-	switch(menu_choice) {
+	scanf("%d", &menuChoice);
+	switch(menuChoice) {
 		case 1:
 			// 계산기
 			calculator();
@@ -55,7 +60,12 @@ int main(void) {
 
 		case 2:
 			// 스케쥴러
-			schedulerMenu();
+			subMenu = schedulerMenu();
+			switch(subMenu) {
+				case 1:
+					insertSchedule();
+					break;
+			}
 			break;
 
 		case 3:
@@ -79,9 +89,22 @@ int schedulerMenu() {
 }
 
 
+// fgets는 마지막에 \n도 저장되기에 \n을 제거.
+char* removeEnterInFgetsString(char *str) {
+	int length = getLength(str);
+	str[length - 1] = '\0';
+	return str;
+}
+
+
 // 스케줄 입력
-char* insertSchedule() {
-	return 0;
+void insertSchedule() {
+	char inputData[100];
+	printf("입력 : ");
+	getchar();
+	fgets(inputData, sizeof(inputData), stdin);
+	removeEnterInFgetsString(inputData);
+	printf("inputData = %s\n", inputData);
 }
 
 // 일정관리 앱
