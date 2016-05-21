@@ -33,6 +33,7 @@ int getValue(char*);
 int getLength(char*);
 
 // 스케줄관리 함수
+int schedulerMenu();
 int getLeapYear(int, int);
 void printCalendar(int, int, int, int);
 int isLeapYear(int);
@@ -54,7 +55,7 @@ int main(void) {
 
 		case 2:
 			// 스케쥴러
-			scheduler();
+			schedulerMenu();
 			break;
 
 		case 3:
@@ -62,6 +63,24 @@ int main(void) {
 			printf("종료됩니다.\n");
 			break;
 	}
+	return 0;
+}
+
+// 스케쥴 관리 메뉴 출력
+int schedulerMenu() {
+	int menu;
+	printf("1. 스케줄 입력\n");
+	printf("2. 스케줄 삭제\n");
+	printf("3. 스케줄 보기\n");
+	printf("4. Main menu\n");
+	printf("메뉴 : ");
+	scanf("%d", &menu);
+	return menu;
+}
+
+
+// 스케줄 입력
+char* insertSchedule() {
 	return 0;
 }
 
