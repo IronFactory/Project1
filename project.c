@@ -1,4 +1,5 @@
 #include <stdio.h> 
+#include <stdlib.h>
 #include <time.h>
 
 // 월별 일 수
@@ -33,29 +34,44 @@ int getValue(char*);
 int getLength(char*);
 
 // 스케줄관리 함수
+int checkDate(int, int, int);
+int checkDay(int, int, int);
+int checkMonth(int);
 int schedulerMenu();
 int getLeapYear(int, int);
 void printCalendar(int, int, int, int);
 int isLeapYear(int);
+void insertSchedule(int);
+
+// String 함수
+char* removeEnterInFgetsString(char*);
 
 int main(void) {
-	int menu_choice;
+	int menuChoice;
+	int subMenu;
 
 	printf("\tMenu\n");
 	printf("1. Calculator\n");
 	printf("2. Scheduler\n");
 	printf("3. End\n");
 
-	scanf("%d", &menu_choice);
-	switch(menu_choice) {
+	scanf("%d", &menuChoice);
+	switch(menuChoice) {
 		case 1:
 			// 계산기
 			calculator();
 			break;
 
 		case 2:
-			// 스케쥴러
-			schedulerMenu();
+			while (1) {
+				// 스케쥴러
+				subMenu = schedulerMenu();
+				switch(subMenu) {
+					case 1:
+						insertSchedule(mScheduleCount);
+						break;
+				}
+			}
 			break;
 
 		case 3:
@@ -79,10 +95,102 @@ int schedulerMenu() {
 }
 
 
+// fgets는 마지막에 \n도 저장되기에 \n을 제거.
+char* removeEnterInFgetsString(char *str) {
+	int length = getLength(str);
+	str[length - 1] = '\0';
+	return str;
+}
+
+
 // 스케줄 입력
-char* insertSchedule() {
+void insertSchedule(int scheduleCount) {
+	int year, month, day;
+	char schedule[100];
+	while (1) {
+		printf("입력 : ");
+		scanf("%d %d %d", &year, &month, &day);
+		getchar();
+		fgets(schedule, sizeof(schedule), stdin);
+		removeEnterInFgetsString(schedule);
+
+		// 날짜 제대로 입력했는지 확인
+		if (checkDate(year, month, day)) {
+			break;
+		}
+	}
+	printf("출력 : %d년 %d월 %d일 %s\n", year, month, day, schedule);
+
+	// 일정 겹치는지 확인
+	int overwrite = 1;
+	for (int i = 0; i < scheduleCount; i++) {
+		// 겹침
+		if (mScheduleYear[i] == year && mScheduleMonth[i] == month && mScheduleDay[i] == day) {
+			char answer;
+			printf("해당 날짜에 이미 일정이 있습니다. 덮어 씌우시겠습니까? (Y or N)");
+			getchar();
+			answer = getchar();
+			// 덮어씌우기
+			if (answer == 'Y' || answer == 'y') {
+				scheduleCount = i;
+				overwrite = 1;
+			}
+			// 되돌아가기
+			else
+				overwrite = 0;
+			break;
+		}
+	}
+
+	// 덮어쓰지 않겠다면 처음으로 돌아감
+	if (!overwrite)
+		return;
+
+	printf("count = %d\n", scheduleCount);
+	mScheduleYear[scheduleCount] = year;
+	mScheduleMonth[scheduleCount] = month;
+	mScheduleDay[scheduleCount] = day;
+	if (mScheduleCount == scheduleCount)
+		mScheduleCount++;
+
+	printf("일정을 추가하였습니다.\n");
+	printf("아무키나 입력하세요.......");
+	getchar();
+	system("clear");
+}
+
+int checkDate(int year, int month, int day) {
+	// 1 ~ 12월 입력했는지 확인
+	if (!checkMonth(month)) {
+		printf("1 ~ 12월로 입력해주세요.\n");
+		return 0;
+	} else if (!checkDay(year, month, day)) {
+		printf("%d년 %d월 %d일은 존재하지 않습니다.\n", year, month, day);
+		return 0;
+	}
+	return 1;
+}
+
+
+// 월 제대로 입력했는지 확인
+int checkMonth(int month) {
+	if (month >= 1 && month <= 12)
+		return 1;
 	return 0;
 }
+
+
+// 일 제대로 입력했는지 확인
+int checkDay(int year, int month, int day) {
+	int leap = isLeapYear(year);
+	if (day > 0 && day <= date[month - 1])
+		return 1;
+	else if (month == 2 && leap)
+		if (day > 0 && day <= 29)
+			return 1;
+	return 0;
+}
+
 
 // 일정관리 앱
 void scheduler() {
