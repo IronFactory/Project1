@@ -1,4 +1,5 @@
 #include <stdio.h> 
+#include <stdlib.h>
 #include <time.h>
 
 // 월별 일 수
@@ -40,7 +41,7 @@ int schedulerMenu();
 int getLeapYear(int, int);
 void printCalendar(int, int, int, int);
 int isLeapYear(int);
-void insertSchedule();
+void insertSchedule(int);
 
 // String 함수
 char* removeEnterInFgetsString(char*);
@@ -62,12 +63,14 @@ int main(void) {
 			break;
 
 		case 2:
-			// 스케쥴러
-			subMenu = schedulerMenu();
-			switch(subMenu) {
-				case 1:
-					insertSchedule();
-					break;
+			while (1) {
+				// 스케쥴러
+				subMenu = schedulerMenu();
+				switch(subMenu) {
+					case 1:
+						insertSchedule(mScheduleCount);
+						break;
+				}
 			}
 			break;
 
@@ -101,25 +104,59 @@ char* removeEnterInFgetsString(char *str) {
 
 
 // 스케줄 입력
-void insertSchedule() {
-	int i, year, month, day;
-	char inputData[100];
+void insertSchedule(int scheduleCount) {
+	int year, month, day;
+	char schedule[100];
 	while (1) {
 		printf("입력 : ");
 		scanf("%d %d %d", &year, &month, &day);
 		getchar();
-		fgets(inputData, sizeof(inputData), stdin);
-		removeEnterInFgetsString(inputData);
+		fgets(schedule, sizeof(schedule), stdin);
+		removeEnterInFgetsString(schedule);
 
 		// 날짜 제대로 입력했는지 확인
 		if (checkDate(year, month, day)) {
 			break;
 		}
 	}
-	//printf("year = %d\n", year);
-	//printf("month = %d\n", month);
-	//printf("day = %d\n", day);
-	//printf("inputData = %s\n", inputData);
+	printf("출력 : %d년 %d월 %d일 %s\n", year, month, day, schedule);
+
+	// 일정 겹치는지 확인
+	int overwrite = 1;
+	for (int i = 0; i < scheduleCount; i++) {
+		// 겹침
+		if (mScheduleYear[i] == year && mScheduleMonth[i] == month && mScheduleDay[i] == day) {
+			char answer;
+			printf("해당 날짜에 이미 일정이 있습니다. 덮어 씌우시겠습니까? (Y or N)");
+			getchar();
+			answer = getchar();
+			// 덮어씌우기
+			if (answer == 'Y' || answer == 'y') {
+				scheduleCount = i;
+				overwrite = 1;
+			}
+			// 되돌아가기
+			else
+				overwrite = 0;
+			break;
+		}
+	}
+
+	// 덮어쓰지 않겠다면 처음으로 돌아감
+	if (!overwrite)
+		return;
+
+	printf("count = %d\n", scheduleCount);
+	mScheduleYear[scheduleCount] = year;
+	mScheduleMonth[scheduleCount] = month;
+	mScheduleDay[scheduleCount] = day;
+	if (mScheduleCount == scheduleCount)
+		mScheduleCount++;
+
+	printf("일정을 추가하였습니다.\n");
+	printf("아무키나 입력하세요.......");
+	getchar();
+	system("clear");
 }
 
 int checkDate(int year, int month, int day) {
@@ -148,10 +185,9 @@ int checkDay(int year, int month, int day) {
 	int leap = isLeapYear(year);
 	if (day > 0 && day <= date[month - 1])
 		return 1;
-	else if (month == 2 && leap) {
+	else if (month == 2 && leap)
 		if (day > 0 && day <= 29)
 			return 1;
-	}
 	return 0;
 }
 
